@@ -20,7 +20,7 @@ function myCredentialProvider() {
  */
 async function sendMessage(form, headers) {
     if (!Object.keys(form).length) {
-        return new Promise.resolve();
+        return Promise.resolve();
     }
 
     let eventData = {
