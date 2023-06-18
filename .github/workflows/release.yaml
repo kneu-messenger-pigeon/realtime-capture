@@ -71,6 +71,10 @@ jobs:
         with:
           name: build-public
 
+      - name: ls public
+        run: |
+          ls -R
+
       - name: serverless deploy
         uses: serverless/github-action@v3.2
         with:
@@ -90,21 +94,16 @@ jobs:
           rm vars-${{ matrix.env }}.toml
 
       - name: Get AWS Secret for put into wrangler
-        run: echo "AwsSecretAccessKey=$(aws ssm get-parameter --name /sqs-dekanat-changes-producer-user/secret --output text --query Parameter.Value)" >> $GITHUB_ENV
+        id: aws_secret
+        run: echo "PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer/secret --output text --query Parameter.Value)" >> $GITHUB_OUTPUT
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: ls public
-        run: |
-          ls -la public
-          ls -la public/${{ matrix.env }}
-
       - name: Deploy cloudflare workers
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          environment: ${{ matrix.env }}
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          secrets: |
-            AwsSecretAccessKey
+        run: |
+          echo ${{ steps.aws_secret.outputs.PRODUCER }} | npx wrangler put AwsSecretAccessKey --env  ${{ matrix.env }}
+          npx wrangler deploy  --env ${{ matrix.env }} --site public/${{ matrix.env }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

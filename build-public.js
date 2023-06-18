@@ -15,10 +15,6 @@ const captureJsSource = UglifyJS.minify(
   fs.readFileSync(sourceFolder + captureJs, 'utf8')
 ).code
 
-if (!wranglerConfig?.site?.bucket || !wranglerConfig.site.bucket.includes(envPlaceholder)) {
-  throw new Error('wrangler.toml [site] bucket doesn\'t include placeholder: ' + envPlaceholder);
-}
-
 if (!captureJsSource.includes(hostnamePlaceholder)) {
   throw new Error('Capture.js doesn\'t include placeholder: ' + hostnamePlaceholder);
 }
@@ -31,8 +27,8 @@ for (const envName in wranglerConfig.env) {
 }
 
 function buildPublic(env, hostname) {
-  const folder = wranglerConfig.site.bucket.replaceAll(envPlaceholder, env)
+  const folder = 'public/' + env + '/';
   const captureJsBuild = captureJsSource.replaceAll(hostnamePlaceholder, hostname)
   fs.mkdirSync(folder, { recursive: true })
-  fs.writeFileSync(folder + '/' + captureJs, captureJsBuild)
+  fs.writeFileSync(folder + captureJs, captureJsBuild)
 }
