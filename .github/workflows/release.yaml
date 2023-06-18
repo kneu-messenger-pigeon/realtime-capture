@@ -68,7 +68,7 @@ jobs:
 
       - id: cloudflare_zones
         name: extract cloudflare zone
-        run: echo "ZONES=$(./extract_cloudflare_zone.js)" >> $GITHUB_OUTPUT
+        run: echo "ZONES=$(./get-cloudflare-zones.js)" >> $GITHUB_OUTPUT
 
   purge-cloudflare-cache:
     runs-on: ubuntu-latest
