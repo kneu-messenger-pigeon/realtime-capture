@@ -5,7 +5,7 @@ on:
     branches: ['main']
 
 jobs:
-  build-node:
+  test:
     name: Test and build node
     runs-on: ubuntu-latest
     outputs:
@@ -34,22 +34,63 @@ jobs:
          name: Get environments list
          run: echo "ENVIRONMENTS=$(./get-environments.js)" >> $GITHUB_OUTPUT
 
-       - name: Build public
-         run: ./build-public.js
-
-       - name: Save assets artifact
-         uses: actions/upload-artifact@v3
-         with:
-           name: assets
-           path: public/
-
-  deploy-aws-sqs:
-    name: Deploy to AWS and Cloudflare workers
+  deploy-assets:
+    name: Deploy assets to Cloudflare pages
     runs-on: ubuntu-latest
-    needs: build-node
+    needs: test
+    outputs:
+      cloudflare_zones: ${{ steps.cloudflare_zones.outputs.ZONES }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install node packages
+        run: npm ci --no-audit
+
+      - name: Build public
+        run: ./build-public.js
+
+      - name: Deploy assets to cloudflare
+        run: |
+          npx wrangler pages deploy public/ --project-name=${{ vars.CLOUDFLARE_ASSETS_PROJECT}}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - id: cloudflare_zones
+        name: extract cloudflare zone
+        run: echo "ZONES=$(./extract_cloudflare_zone.js)" >> $GITHUB_OUTPUT
+
+  purge-cloudflare-cache:
+    runs-on: ubuntu-latest
+    needs: deploy-assets
     strategy:
       matrix:
-        env: ${{fromJson(needs.build-node.outputs.environments)}}
+        cloudflare_zone: ${{fromJson(needs.deploy-assets.outputs.cloudflare_zones)}}
+    steps:
+      - name: Purge Cloudflare Pages Cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ZONE: ${{ matrix.cloudflare_zone }}
+
+
+  deploy-cloudflare-worker:
+    name: Deploy to AWS and Cloudflare workers
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        env: ${{fromJson(needs.test.outputs.environments)}}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -91,15 +132,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
 
-      - name: Download assets
-        uses: actions/download-artifact@v3
-        with:
-          name: assets
-          path: public/
-
       - name: Deploy cloudflare workers
         run: |
           echo ${{ steps.aws_secret.outputs.PRODUCER }} | npx wrangler secret put AwsSecretAccessKey --env ${{ matrix.env }}
-          npx wrangler deploy  --env ${{ matrix.env }} --site public/${{ matrix.env }}
+          npx wrangler deploy  --env ${{ matrix.env }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
