@@ -38,8 +38,6 @@ jobs:
     name: Deploy assets to Cloudflare pages
     runs-on: ubuntu-latest
     needs: test
-    outputs:
-      cloudflare_zones: ${{ steps.cloudflare_zones.outputs.ZONES }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -60,29 +58,20 @@ jobs:
       - name: Build public
         run: ./build-public.js
 
+      - name: Remove .gitkeep files
+        run: rm -rf public/*/.gitkeep
+
       - name: Deploy assets to cloudflare
         run: |
           npx wrangler pages deploy public/ --project-name=${{ vars.CLOUDFLARE_ASSETS_PROJECT}}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
-      - id: cloudflare_zones
-        name: extract cloudflare zone
-        run: echo "ZONES=$(./get-cloudflare-zones.js)" >> $GITHUB_OUTPUT
-
-  purge-cloudflare-cache:
-    runs-on: ubuntu-latest
-    needs: deploy-assets
-    strategy:
-      matrix:
-        cloudflare_zone: ${{fromJson(needs.deploy-assets.outputs.cloudflare_zones)}}
-    steps:
       - name: Purge Cloudflare Pages Cache
         uses: jakejarvis/cloudflare-purge-action@master
         env:
           CLOUDFLARE_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ZONE: ${{ matrix.cloudflare_zone }}
-
+          CLOUDFLARE_ZONE: ${{ vars.CLOUDFLARE_ZONE }}
 
   deploy-cloudflare-worker:
     name: Deploy to AWS and Cloudflare workers
