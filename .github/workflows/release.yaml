@@ -71,16 +71,12 @@ jobs:
         with:
           name: build-public
 
-      - name: ls public
-        run: |
-          ls -R
-
       - name: serverless deploy
         run: npx serverless deploy --stage ${{ matrix.env }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
 
       - name: Put correct bucket folder into wrangler.toml
         run: sed -i -e 's/{ENV}/${{ matrix.env }}/g' wrangler.toml

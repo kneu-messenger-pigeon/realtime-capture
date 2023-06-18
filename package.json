@@ -22,7 +22,7 @@
     "uglify-js": "^3.17.4"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.3.0",
+    "@aws-sdk/client-sqs": "^3.354.0",
     "serverless": "^3.32.2",
     "serverless-stack-output": "^0.2.3",
     "wrangler": "^3.1.0"
