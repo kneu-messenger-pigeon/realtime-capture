@@ -100,6 +100,7 @@ jobs:
       - name: Deploy cloudflare workers
         run: |
           echo ${{ steps.aws_secret.outputs.PRODUCER }} | npx wrangler secret put AwsSecretAccessKey --env ${{ matrix.env }}
+          ls -R public
           npx wrangler deploy  --env ${{ matrix.env }} --site public/${{ matrix.env }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
