@@ -25,7 +25,7 @@ jobs:
            restore-keys: npm-
 
        - name: Install node packages
-         run: npm ci
+         run: npm ci --no-audit
 
        - name: Run tests
          run: npm test
@@ -41,9 +41,7 @@ jobs:
          uses: actions/upload-artifact@v3
          with:
            name: build-public
-           path: |
-             public/
-             !public/*/.gitkeep
+           path: public/
 
   deploy-aws-sqs:
     name: Deploy to AWS and Cloudflare workers
@@ -66,7 +64,7 @@ jobs:
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
 
-      - run: npm ci --omit=dev
+      - run: npm ci --omit=dev --no-audit
 
       - name: Download built public
         uses: actions/download-artifact@v3
