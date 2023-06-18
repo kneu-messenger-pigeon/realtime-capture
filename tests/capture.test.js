@@ -1,4 +1,4 @@
-const eventEndpoint = "https://realtime.dekanat.pp.ua/";
+const eventEndpoint = "https://{WORKER_HOST}/";
 
 const readFile = require('fs/promises').readFile;
 require('jest-fetch-mock').enableMocks();
@@ -103,7 +103,7 @@ test('Edit scores', async () => {
     fetch.mockResponse(null);
     document.addEventListener = jest.fn()
     window.$ = global.$ = window.jQuery = global.jQuery = require('jquery')
-    require("../public/capture.js");
+    require("../src/capture.js");
 
     expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
         method: "HEAD",
@@ -156,7 +156,7 @@ test('Create lesson', async () => {
     document.addEventListener = jest.fn()
     window.$ = window.jQuery = global.$ = require('jquery')
     require(__dirname + "/html/lesson-form.js");
-    require("../public/capture.js");
+    require("../src/capture.js");
 
     window.dispatchEvent(new PageTransitionEvent('pageshow', {
         persisted: true,
@@ -214,7 +214,7 @@ test('Edit lesson', async () => {
     document.addEventListener = jest.fn()
     window.$ = window.jQuery = global.$ = require('jquery')
     require(__dirname + "/html/lesson-form.js");
-    require("../public/capture.js");
+    require("../src/capture.js");
 
     expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
         method: "HEAD",
@@ -264,7 +264,7 @@ test('Delete lesson', async () => {
     window.$ = require('jquery')
     window.MutationObserver = global.MutationObserver = GetMutationObserverMock()
     document.addEventListener = jest.fn()
-    require("../public/capture.js");
+    require("../src/capture.js");
 
     global.MutationObserver.lastInstance.callback([
         {
@@ -308,7 +308,7 @@ test('Load libs', async () => {
     delete window.FormData;
     delete window.URLSearchParams
 
-    require("../public/capture.js");
+    require("../src/capture.js");
 
     let scripts = document.head.querySelectorAll('script')
     let srcList = [];

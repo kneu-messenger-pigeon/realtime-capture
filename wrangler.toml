@@ -1,7 +1,18 @@
 name = "realtime"
 main = "worker/index.js"
-compatibility_date = "2022-12-21"
-workers_dev = true
-routes = [
-    { pattern = "realtime.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
-]
+compatibility_date = "2023-06-17"
+workers_dev = false
+
+[env.test]
+name = "realtime-test"
+route = { pattern = "realtime-test.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
+
+[env.test.site]
+  bucket = "./public/test"
+
+[env.production]
+name = "realtime"
+route = { pattern = "realtime.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
+
+[env.production.site]
+  bucket = "./public/production"

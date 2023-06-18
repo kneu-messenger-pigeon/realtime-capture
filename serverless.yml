@@ -1,27 +1,26 @@
-# aws ssm get-parameter --name /sqs-dekanat-changes-producer-user/secret --output text  --query Parameter.Value | wrangler secret put AwsSecretAccessKey
-# aws sqs get-queue-url --queue-name=dekanat-queue --query QueueUrl
-# aws iam list-access-keys --user-name=sqs-dekanat-changes-consumer-user --output json --query AccessKeyMetadata\[-1\].AccessKeyId
-# aws ssm get-parameter --name /sqs-dekanat-changes-consumer-user/secret --output text  --query Parameter.Value
-service: realtime-changes-event-sender
+# aws ssm get-parameter --name /realtime-changes-production-producer/secret --output text  --query Parameter.Value | wrangler secret put AwsSecretAccessKey
+# aws sqs get-queue-url --queue-name=realtime-changes-production-changes-queue --query QueueUrl
+# aws iam list-access-keys --user-name=realtime-changes-production-consumer --output json --query AccessKeyMetadata\[-1\].AccessKeyId
+# aws ssm get-parameter --name /realtime-changes-production-consumer-user/secret --output text  --query Parameter.Value
+service: realtime-changes-${sls:stage}
 
 plugins:
   - serverless-stack-output
 
 custom:
   output:
-    file: vars.toml
+    file: vars-${sls:stage}.toml
 
 provider:
   name: aws
   region: ${env:AWS_DEFAULT_REGION, 'eu-central-1'}
-  stage:  prod
 
 resources:
   Resources:
-    DekanatChangesQueue:
+    ChangesQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        QueueName: dekanat-queue
+        QueueName: ${self:service}-changes-queue
         # 4 days
         MessageRetentionPeriod: 345600
         DelaySeconds: 2
@@ -30,21 +29,21 @@ resources:
         RedrivePolicy:
           deadLetterTargetArn:
             Fn::GetAtt:
-              - DekanatChangesDeadLetterQueue
+              - ChangesDeadLetterQueue
               - Arn
           maxReceiveCount: 3
 
-    DekanatChangesDeadLetterQueue:
+    ChangesDeadLetterQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        QueueName: dekanat-queue-dead-letter
+        QueueName: ${self:service}-queue-dead-letter
         # 14 days
         MessageRetentionPeriod: 1209600
 
-    DekanatChangesProducerUser:
+    ChangesProducerUser:
       Type: 'AWS::IAM::User'
       Properties:
-        UserName: sqs-dekanat-changes-producer-user
+        UserName: ${self:service}-producer
         Policies:
           - PolicyName: ExampleUserSQSPolicy
             PolicyDocument:
@@ -59,30 +58,30 @@ resources:
                         - - 'arn:aws:sqs:*'
                           - Ref: 'AWS::AccountId'
                           - 'Fn::GetAtt':
-                              - DekanatChangesQueue
+                              - ChangesQueue
                               - QueueName
 
-    DekanatChangesProducerUserKey:
+    ChangesProducerUserKey:
       Type: 'AWS::IAM::AccessKey'
       Properties:
         UserName:
-          Ref: DekanatChangesProducerUser
+          Ref: ChangesProducerUser
 
-    DekanatChangesProducerUserKeySecret:
+    ChangesProducerUserKeySecret:
       Type: 'AWS::SSM::Parameter'
       Properties:
-        Name: /sqs-dekanat-changes-producer-user/secret
+        Name: /${self:service}-producer/secret
         Type: String
         Value:
           'Fn::GetAtt':
-            - DekanatChangesProducerUserKey
+            - ChangesProducerUserKey
             - SecretAccessKey
 
 
-    DekanatChangesConsumerUser:
+    ChangesConsumerUser:
       Type: 'AWS::IAM::User'
       Properties:
-        UserName: sqs-dekanat-changes-consumer-user
+        UserName: ${self:service}-consumer
         Policies:
           - PolicyName: ExampleUserSQSPolicy
             PolicyDocument:
@@ -100,34 +99,34 @@ resources:
                         - - 'arn:aws:sqs:*'
                           - Ref: 'AWS::AccountId'
                           - 'Fn::GetAtt':
-                              - DekanatChangesQueue
+                              - ChangesQueue
                               - QueueName
 
-    DekanatChangesConsumerUserKey:
+    ChangesConsumerUserKey:
       Type: 'AWS::IAM::AccessKey'
       Properties:
         UserName:
-          Ref: DekanatChangesConsumerUser
+          Ref: ChangesConsumerUser
 
-    DekanatChangesConsumerUserKeySecret:
+    ChangesConsumerUserKeySecret:
       Type: 'AWS::SSM::Parameter'
       Properties:
-        Name: /sqs-dekanat-changes-consumer-user/secret
+        Name: /${self:service}-consumer-user/secret
         Type: String
         Value:
           'Fn::GetAtt':
-            - DekanatChangesConsumerUserKey
+            - ChangesConsumerUserKey
             - SecretAccessKey
 
 
   Outputs:
     AwsAccessKeyId:
       Value:
-        Ref: DekanatChangesProducerUserKey
+        Ref: ChangesProducerUserKey
     AwsSqsQueueUrl:
       Value:
         'Fn::GetAtt':
-          - DekanatChangesQueue
+          - ChangesQueue
           - QueueUrl
     AwsRegion:
       Value: ${aws:region}

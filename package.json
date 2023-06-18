@@ -17,7 +17,9 @@
     "jest-environment-jsdom": "^29.3.1",
     "jest-fetch-mock": "^3.0.3",
     "jquery": "2.2.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "toml-require": "^1.2.0",
+    "uglify-js": "^3.17.4"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.3.0",

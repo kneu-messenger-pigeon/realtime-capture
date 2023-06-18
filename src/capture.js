@@ -1,5 +1,5 @@
 (function() {
-    const eventEndpoint = "https://realtime.dekanat.pp.ua/";
+    const eventEndpoint = "https://{WORKER_HOST}/";
 
     const submitEvent = function (formData) {
         return fetch(eventEndpoint, {

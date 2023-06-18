@@ -1,6 +1,6 @@
-# public/*
-!public/.gitkeep
+public/*
+!public/*/.gitkeep
 node_modules/
-vars.toml
+vars-*.toml
 .serverless
 coverage
