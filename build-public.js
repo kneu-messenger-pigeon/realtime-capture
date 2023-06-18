@@ -6,7 +6,6 @@ const UglifyJS = require("uglify-js");
 require('toml-require').install();
 const wranglerConfig = require('./wrangler.toml')
 
-const envPlaceholder = '{ENV}'
 const hostnamePlaceholder = '{WORKER_HOST}'
 
 const sourceFolder = 'src/';
