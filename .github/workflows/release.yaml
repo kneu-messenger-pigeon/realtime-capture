@@ -81,6 +81,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Put correct bucket folder into wrangler.toml
+        run: sed -i -e 's/{ENV}/${{ matrix.env }}/g' wrangler.toml
+
       - name: Put AWS credentials as Cloudflare Workers vars in wrangler.toml
         run: |
           echo -e "\n[env.${{ matrix.env }}.vars]" >> wrangler.toml
