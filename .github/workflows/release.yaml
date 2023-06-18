@@ -85,6 +85,9 @@ jobs:
       - name: Put correct bucket folder into wrangler.toml
         run: sed -i -e 's/{ENV}/${{ matrix.env }}/g' wrangler.toml
 
+      - name: Print wrangler.toml
+        run: cat wrangler.toml
+
       - name: Put AWS credentials as Cloudflare Workers vars in wrangler.toml
         run: |
           echo -e "\n[env.${{ matrix.env }}.vars]" >> wrangler.toml
