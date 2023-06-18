@@ -83,12 +83,13 @@ jobs:
       - name: Get AWS Secret for put into wrangler
         id: aws_secret
         run: |
+          PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer/secret --output text --query Parameter.Value)
           echo "::add-mask::$PRODUCER"
-          echo "PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer/secret --output text --query Parameter.Value)" >> $GITHUB_OUTPUT
+          echo "PRODUCER=$PRODUCER" >> $GITHUB_OUTPUT
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
 
       - name: Download assets
         uses: actions/download-artifact@v3
@@ -99,7 +100,6 @@ jobs:
       - name: Deploy cloudflare workers
         run: |
           echo ${{ steps.aws_secret.outputs.PRODUCER }} | npx wrangler secret put AwsSecretAccessKey --env ${{ matrix.env }}
-          ls -R public
           npx wrangler deploy  --env ${{ matrix.env }} --site public/${{ matrix.env }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
