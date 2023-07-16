@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare and AWS
+name: Release
 
 on:
   workflow_dispatch:
