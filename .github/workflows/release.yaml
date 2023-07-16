@@ -1,6 +1,7 @@
 name: Deploy to Cloudflare and AWS
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
 
@@ -29,6 +30,10 @@ jobs:
 
        - name: Run tests
          run: npm test
+
+       - uses: codecov/codecov-action@v3
+         with:
+           token: ${{ secrets.CODECOV_TOKEN }}
 
        - id: environments
          name: Get environments list
