@@ -70,7 +70,7 @@ resources:
     ChangesProducerUserKeySecret:
       Type: 'AWS::SSM::Parameter'
       Properties:
-        Name: /${self:service}-producer/secret
+        Name: /${self:service}-producer-user/secret
         Type: String
         Value:
           'Fn::GetAtt':

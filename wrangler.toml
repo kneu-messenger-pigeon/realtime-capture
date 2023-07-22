@@ -3,9 +3,9 @@ main = "worker/index.js"
 compatibility_date = "2023-06-17"
 workers_dev = false
 
-[env.test]
-name = "realtime-test"
-route = { pattern = "realtime-test.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
+[env.integration-testing]
+name = "realtime-integration-testing"
+route = { pattern = "realtime-integration-testing.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
 
 [env.production]
 name = "realtime"

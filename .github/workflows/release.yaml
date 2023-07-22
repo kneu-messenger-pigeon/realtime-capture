@@ -118,7 +118,7 @@ jobs:
       - name: Get AWS Secret for put into wrangler
         id: aws_secret
         run: |
-          PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer/secret --output text --query Parameter.Value)
+          PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer-user/secret --output text --query Parameter.Value)
           echo "::add-mask::$PRODUCER"
           echo "PRODUCER=$PRODUCER" >> $GITHUB_OUTPUT
         env:
@@ -132,3 +132,21 @@ jobs:
           npx wrangler deploy  --env ${{ matrix.env }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Add Infisical package repository
+        run: curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+
+      - name: Install Infisical CLI
+        uses: awalsh128/cache-apt-pkgs-action@v1.3.0
+        with:
+          packages: infisical
+          version: 1.0
+
+      - name: Put secrets into Infisical
+        run: |
+          infisical secrets set --env ${{ matrix.env }} --path=/realtime-changes-event-sender \
+          "PRODUCER=$(aws ssm get-parameter --name /realtime-changes-${{ matrix.env }}-producer-user/secret --output text --query Parameter.Value)"
+
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          INFISICAL_DISABLE_UPDATE_CHECK: true
