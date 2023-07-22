@@ -4,3 +4,5 @@ node_modules/
 vars-*.toml
 .serverless
 coverage
+.tmp.start.env-vars
+.tmp.finish.env-vars

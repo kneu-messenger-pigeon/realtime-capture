@@ -7,6 +7,6 @@ workers_dev = false
 name = "realtime-integration-testing"
 route = { pattern = "realtime-integration-testing.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
 
-[env.production]
+[env.prod]
 name = "realtime"
 route = { pattern = "realtime.dekanat.pp.ua", custom_domain = true, zone_name = "dekanat.pp.ua" }
