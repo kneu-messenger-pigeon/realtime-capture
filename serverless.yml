@@ -1,7 +1,7 @@
-# aws ssm get-parameter --name /realtime-changes-production-producer/secret --output text  --query Parameter.Value | wrangler secret put AwsSecretAccessKey
-# aws sqs get-queue-url --queue-name=realtime-changes-production-changes-queue --query QueueUrl
-# aws iam list-access-keys --user-name=realtime-changes-production-consumer --output json --query AccessKeyMetadata\[-1\].AccessKeyId
-# aws ssm get-parameter --name /realtime-changes-production-consumer-user/secret --output text  --query Parameter.Value
+# aws ssm get-parameter --name /realtime-changes-prod-producer/secret --output text  --query Parameter.Value | wrangler secret put AwsSecretAccessKey
+# aws sqs get-queue-url --queue-name=realtime-changes-prod-changes-queue --output text --query QueueUrl
+# aws iam list-access-keys --user-name=realtime-changes-prod-consumer --output text --query AccessKeyMetadata\[-1\].AccessKeyId
+# aws ssm get-parameter --name /realtime-changes-prod-consumer-user/secret --output text  --query Parameter.Value
 service: realtime-changes-${sls:stage}
 
 plugins:
