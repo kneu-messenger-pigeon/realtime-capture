@@ -18,6 +18,10 @@ SCRIPT_PUBLIC_URL=$(cat public-urls/${ENV})
 >&2 echo "done SCRIPT_PUBLIC_URL: ${SCRIPT_PUBLIC_URL}"
 ### ------------------------------------------------------------------------------ ###
 
+STATIC_HOSTNAME=$(cat public-urls/staticHostname)
+>&2 echo "done STATIC_HOSTNAME: ${STATIC_HOSTNAME}"
+### ------------------------------------------------------------------------------ ###
+
 
 
 AWS_REGION=$( aws configure list | grep region | awk '{print $2}')

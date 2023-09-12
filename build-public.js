@@ -22,11 +22,16 @@ if (!captureJsSource.includes(hostnamePlaceholder)) {
 
 const publicUrlStorageDir = 'public-urls/'
 fs.mkdirSync(publicUrlStorageDir, { recursive: true })
+fs.rmSync(publicUrlStorageDir + "staticHostname", { force: true })
 
 for (const envName in wranglerConfig.env) {
   const captureJsPublicUrls = buildPublic(envName)
 
   fs.writeFileSync(publicUrlStorageDir + envName, captureJsPublicUrls)
+
+  if (envName.substring(0, 4) === 'prod') {
+    fs.writeFileSync(publicUrlStorageDir + "staticHostname", wranglerConfig.env[envName].route.zone_name)
+  }
 }
 
 function buildPublic(env) {
