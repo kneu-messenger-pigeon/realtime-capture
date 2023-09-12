@@ -8,7 +8,7 @@ document.head.append(
     Object.assign(
         document.createElement("script"),
         {
-          src: "https://dekanat.pp.ua/production/capture.js",
+          src: "https://dekanat.pp.ua/prod/capture.js",
           async: true,
         }
     )
@@ -18,5 +18,5 @@ document.head.append(
 
 one line: 
 ```javascript
-document.head.append(Object.assign(document.createElement("script"),{src:"https://dekanat.pp.ua/production/capture.js",async:true}));
+document.head.append(Object.assign(document.createElement("script"),{src:"https://dekanat.pp.ua/prod/capture.js",async:true}));
 ```
