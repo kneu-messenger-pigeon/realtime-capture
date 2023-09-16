@@ -178,7 +178,7 @@ jobs:
 
             CURRENT_VALUE=$( \
               curl --location --silent \
-              'https://app.infisical.com/api/v3/secrets/raw/$NAME?workspaceId=${{ vars.INFISICAL_WORKSPACE_ID}}&environment=${{ matrix.env }}&secretPath=${{ vars.INFISICAL_PATH }}' \
+              "https://app.infisical.com/api/v3/secrets/raw/$NAME?workspaceId=${{ vars.INFISICAL_WORKSPACE_ID}}&environment=${{ matrix.env }}&secretPath=${{ vars.INFISICAL_PATH }}" \
               --header 'Authorization: Bearer ${{ secrets.INFISICAL_TOKEN }}' | jq -r .secret.secretValue \
             )
             
