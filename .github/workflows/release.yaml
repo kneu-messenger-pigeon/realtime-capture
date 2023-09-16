@@ -176,10 +176,30 @@ jobs:
 
             echo "Put secret: $NAME - $VALUE..."
 
+            CURRENT_VALUE=$( \
+              curl --location --silent \
+              'https://app.infisical.com/api/v3/secrets/raw/$NAME?workspaceId=${{ vars.INFISICAL_WORKSPACE_ID}}&environment=${{ matrix.env }}&secretPath=${{ vars.INFISICAL_PATH }}' \
+              --header 'Authorization: Bearer ${{ secrets.INFISICAL_TOKEN }}' | jq -r .secret.secretValue \
+            )
+            
+            if [ "$CURRENT_VALUE" == "$VALUE" ]; then
+              echo "Secret $NAME already exists with value $VALUE"
+              continue
+          
+            elif [ "$CURRENT_VALUE" == "null" ]; then
+                echo "Secret $NAME not exists, create"
+                METHOD=POST
+            else
+                echo "Secret $NAME exists, update"
+                METHOD=PATCH
+            fi
+          
+            if [ "$CURRENT_VALUE" == "null" ];
+
             curl --fail --location \
               --silent \
               --write-out  "%{http_code}\n" \
-              --request PATCH \
+              --request $METHOD \
               --url "https://app.infisical.com/api/v3/secrets/raw/$NAME" \
               --header 'Authorization: Bearer ${{ secrets.INFISICAL_TOKEN }}' \
               --header 'Content-Type: application/json' \
@@ -188,7 +208,7 @@ jobs:
               "workspaceId": "${{ vars.INFISICAL_WORKSPACE_ID}}",
               "environment": "${{ matrix.env }}",
               "type": "shared",
-              "secretPath": "/realtime-changes-event-sender",
+              "secretPath": "${{ vars.INFISICAL_PATH }}",
               "secretValue": "$VALUE"
             }
           EOF
