@@ -177,7 +177,7 @@ jobs:
             echo "Put secret: $NAME - $VALUE..."
 
             curl --fail --location \
-              --silent --output /dev/null \
+              --silent \
               --write-out  "%{http_code}\n" \
               --request PATCH \
               --url "https://app.infisical.com/api/v3/secrets/raw/$NAME" \
