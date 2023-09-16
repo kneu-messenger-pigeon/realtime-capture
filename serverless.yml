@@ -24,14 +24,14 @@ resources:
         # 4 days
         MessageRetentionPeriod: 345600
         DelaySeconds: 2
-        VisibilityTimeout: 5
+        VisibilityTimeout: 15
         ReceiveMessageWaitTimeSeconds: 10
         RedrivePolicy:
           deadLetterTargetArn:
             Fn::GetAtt:
               - ChangesDeadLetterQueue
               - Arn
-          maxReceiveCount: 3
+          maxReceiveCount: 5
 
     ChangesDeadLetterQueue:
       Type: 'AWS::SQS::Queue'
