@@ -193,8 +193,6 @@ jobs:
                 echo "Secret $NAME exists, update"
                 METHOD=PATCH
             fi
-          
-            if [ "$CURRENT_VALUE" == "null" ];
 
             curl --fail --location \
               --silent \
