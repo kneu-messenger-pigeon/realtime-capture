@@ -195,7 +195,7 @@ jobs:
             fi
 
             curl --fail --location \
-              --silent \
+              --silent --output /dev/null \
               --write-out  "%{http_code}\n" \
               --request $METHOD \
               --url "https://app.infisical.com/api/v3/secrets/raw/$NAME" \
