@@ -176,11 +176,17 @@ jobs:
 
             echo "Put secret: $NAME - $VALUE..."
 
+            ENDPOINT="https://app.infisical.com/api/v3/secrets/raw/$NAME"
             CURRENT_VALUE=$( \
               curl --location --silent \
-              "https://app.infisical.com/api/v3/secrets/raw/$NAME?workspaceId=${{ vars.INFISICAL_WORKSPACE_ID}}&environment=${{ matrix.env }}&secretPath=${{ vars.INFISICAL_PATH }}" \
+              "$ENDPOINT?workspaceId=${{ vars.INFISICAL_WORKSPACE_ID}}&environment=${{ matrix.env }}&secretPath=${{ vars.INFISICAL_PATH }}" \
               --header 'Authorization: Bearer ${{ secrets.INFISICAL_TOKEN }}' | jq -r .secret.secretValue \
             )
+
+            if [ $? -ne 0 ]; then
+              echo "Failed to check does variable exists"
+              exit 3
+            fi
             
             if [ "$CURRENT_VALUE" == "$VALUE" ]; then
               echo "Secret $NAME already exists with value $VALUE"
@@ -198,7 +204,7 @@ jobs:
               --silent --output /dev/null \
               --write-out  "%{http_code}\n" \
               --request $METHOD \
-              --url "https://app.infisical.com/api/v3/secrets/raw/$NAME" \
+              --url "$ENDPOINT" \
               --header 'Authorization: Bearer ${{ secrets.INFISICAL_TOKEN }}' \
               --header 'Content-Type: application/json' \
               --data-binary @- <<EOF
