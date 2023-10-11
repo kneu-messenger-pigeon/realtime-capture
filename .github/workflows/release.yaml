@@ -235,3 +235,16 @@ jobs:
           repository: kneu-messenger-pigeon/pigeon-app
           event-type: environments-updated
           client-payload: '{"initiator": "${{ github.event.repository.name }}"}'
+
+  dispatch-browser-integration-tests:
+    runs-on: ubuntu-22.04
+    needs:
+      - put-secrets-into-infisical
+    steps:
+      - name: Pigeon App Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.TOKEN_TO_RUN_GITHUB_ACTION }}
+          repository: kneu-messenger-pigeon/realtime-capture-browser-integration-tests
+          event-type: realtime-capture-deployed
+          client-payload: '{"initiator": "${{ github.event.repository.name }}"}'
