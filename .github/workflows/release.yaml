@@ -241,6 +241,9 @@ jobs:
     needs:
       - put-secrets-into-infisical
     steps:
+      # Pigeon App should be deployed before browser integration tests - they both use same OpenVPN connection to server
+      - name: Sleep for 1 minute
+        run: sleep 60
       - name: Pigeon App Repository Dispatch
         uses: peter-evans/repository-dispatch@v2
         with:
