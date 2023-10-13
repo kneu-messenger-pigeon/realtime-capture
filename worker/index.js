@@ -42,7 +42,7 @@ const corsHeaders = {
     "Allow": "HEAD,POST,OPTIONS",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "HEAD,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Headers": "content-type,x-has-changes",
     "Access-Control-Max-Age": "86400",
 }
 
