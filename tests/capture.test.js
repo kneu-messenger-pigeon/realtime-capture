@@ -33,7 +33,7 @@ test('Edit scores', async () => {
         "m":"-1",
         "d2":"18.12.2022",
         "st110030_1-999999":"",
-        "st110030_2-999999":"",
+        "st110030_2-999999":"3",
         "st118514_1-999999":"",
         "st118514_2-999999":"",
         "st110033_1-999999":"",
@@ -105,6 +105,8 @@ test('Edit scores', async () => {
     window.$ = global.$ = window.jQuery = global.jQuery = require('jquery')
     require("../src/capture.js");
 
+    document.querySelector('[name="st110030_2-999999"]').value = "3";
+
     expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
         method: "HEAD",
         cache: "no-cache",
@@ -121,6 +123,7 @@ test('Edit scores', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
+            "X-Has-Changes": "1",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -180,6 +183,7 @@ test('Create lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
+            "X-Has-Changes": "0",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -234,6 +238,7 @@ test('Edit lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
+            "X-Has-Changes": "0",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -293,6 +298,7 @@ test('Delete lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
+            "X-Has-Changes": "1",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -318,7 +324,17 @@ test('Load libs', async () => {
     srcList.sort();
 
     expect(srcList).toEqual([
+        'https://cdn.jsdelivr.net/npm/@ungap/url-search-params/min.js',
         'https://cdn.jsdelivr.net/npm/formdata-polyfill@4.0.10/formdata.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/url-search-params/1.1.0/url-search-params.js',
     ]);
+
+    fetch.mockResponse(null);
+    let documentAddEventListenerMock = jest.fn()
+    document.addEventListener = documentAddEventListenerMock
+
+    expect(scripts[0].dispatchEvent(new Event('load'))).toBeTruthy();
+    expect(documentAddEventListenerMock).not.toHaveBeenCalled()
+
+    expect(scripts[1].dispatchEvent(new Event('error'))).toBeTruthy();
+    expect(documentAddEventListenerMock).toHaveBeenCalledTimes(1);
 });

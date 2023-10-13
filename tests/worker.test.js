@@ -129,35 +129,46 @@ test('addEventListener_POST_with_payload_Request', async () => {
     "AddEstim":"0",
   };
 
-  const headers = {
-    "Cf-Connecting-Ip": "127.10.10.10",
-    "Referer": "http://dekanat/index.html",
+
+  const sendAndAssertRequestResponse = async function(hasChangeHeader, expectHasChanges) {
+    mockSend.mockReset()
+    mockSendMessageCommand.mockReset()
+
+    const headers = {
+      "Cf-Connecting-Ip": "127.10.10.10",
+      "Referer": "http://dekanat/index.html",
+      "X-Has-Changes": hasChangeHeader,
+    }
+    headers.get = (key) => headers[key]
+
+    const request = {
+      method: "POST",
+      url: "http://localhost/",
+      headers: headers,
+      json: jest.fn().mockResolvedValue(form),
+    };
+    await doRequest(request)
+
+    // assert that `send` was called on client with instance of SendCommand
+    expect(mockSend.mock.calls).toHaveLength(1)
+    expect(mockSend.mock.lastCall[0]).toStrictEqual(mockSendMessageCommand.mock.instances[0])
+
+    // assert tha expected payoload used to create SendCommand
+    expect(mockSendMessageCommand.mock.calls).toHaveLength(1)
+    expect(typeof mockSendMessageCommand.mock.lastCall[0]).toBe('object')
+
+    const sendMessageCommandConfig = mockSendMessageCommand.mock.lastCall[0] || {}
+    expect(sendMessageCommandConfig.QueueUrl).toBe(AwsSqsQueueUrl)
+
+    const actualMessageBody = JSON.parse(sendMessageCommandConfig.MessageBody)
+    expect(typeof actualMessageBody).toBe('object')
+    expect(actualMessageBody.form).toStrictEqual(form)
+    expect(actualMessageBody.ip).toBe(headers['Cf-Connecting-Ip'])
+    expect(actualMessageBody.referer).toBe(headers['Referer'])
+    expect(actualMessageBody.timestamp).toBe(currentTimestampInSeconds)
+    expect(actualMessageBody.formHasChanges).toBe(expectHasChanges)
   }
-  headers.get = (key) => headers[key]
 
-  const request = {
-    method: "POST",
-    url: "http://localhost/",
-    headers: headers,
-    json: jest.fn().mockResolvedValue(form),
-  };
-  await doRequest(request)
-
-  // assert that `send` was called on client with instance of SendCommand
-  expect(mockSend.mock.calls).toHaveLength(1)
-  expect(mockSend.mock.lastCall[0]).toBe(mockSendMessageCommand.mock.instances[0])
-
-  // assert tha expected payoload used to create SendCommand
-  expect(mockSendMessageCommand.mock.calls).toHaveLength(1)
-  expect(typeof mockSendMessageCommand.mock.lastCall[0]).toBe('object')
-
-  const sendMessageCommandConfig = mockSendMessageCommand.mock.lastCall[0] || {}
-  expect(sendMessageCommandConfig.QueueUrl).toBe(AwsSqsQueueUrl)
-
-  const actualMessageBody = JSON.parse(sendMessageCommandConfig.MessageBody)
-  expect(typeof actualMessageBody).toBe('object')
-  expect(actualMessageBody.form).toStrictEqual(form)
-  expect(actualMessageBody.ip).toBe(headers['Cf-Connecting-Ip'])
-  expect(actualMessageBody.referer).toBe(headers['Referer'])
-  expect(actualMessageBody.timestamp).toBe(currentTimestampInSeconds)
+  await sendAndAssertRequestResponse("1", true)
+  await sendAndAssertRequestResponse("0", false)
 })

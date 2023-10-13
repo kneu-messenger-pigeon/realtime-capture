@@ -27,6 +27,7 @@ async function sendMessage(form, headers) {
         timestamp: Date.now() / 1E3 | 0,
         ip: headers.get("Cf-Connecting-Ip"),
         referer: headers.get("Referer"),
+        formHasChanges: headers.get("X-Has-Changes") === "1",
         form: form,
     }
 
