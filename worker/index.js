@@ -14,12 +14,12 @@ function myCredentialProvider() {
 }
 
 /**
- * @param {Object} form
+ * @param {Object} postData
  * @param {Headers} headers
  * @return {Promise}
  */
-async function sendMessage(form, headers) {
-    if (!Object.keys(form).length) {
+async function sendMessage(postData, headers) {
+    if (!postData.form || !Object.keys(postData.form).length) {
         return Promise.resolve();
     }
 
@@ -27,8 +27,8 @@ async function sendMessage(form, headers) {
         timestamp: Date.now() / 1E3 | 0,
         ip: headers.get("Cf-Connecting-Ip"),
         referer: headers.get("Referer"),
-        formHasChanges: headers.get("X-Has-Changes") === "1",
-        form: form,
+        formHasChanges: Boolean(postData.hasChanges),
+        form: postData.form,
     }
 
     return clientSqs.send(new SendMessageCommand({

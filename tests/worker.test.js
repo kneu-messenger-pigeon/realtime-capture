@@ -130,14 +130,13 @@ test('addEventListener_POST_with_payload_Request', async () => {
   };
 
 
-  const sendAndAssertRequestResponse = async function(hasChangeHeader, expectHasChanges) {
-    mockSend.mockReset()
-    mockSendMessageCommand.mockReset()
+  const sendAndAssertRequestResponse = async function(expectHasChanges) {
+    mockSend.mockClear()
+    mockSendMessageCommand.mockClear()
 
     const headers = {
       "Cf-Connecting-Ip": "127.10.10.10",
       "Referer": "http://dekanat/index.html",
-      "X-Has-Changes": hasChangeHeader,
     }
     headers.get = (key) => headers[key]
 
@@ -145,7 +144,10 @@ test('addEventListener_POST_with_payload_Request', async () => {
       method: "POST",
       url: "http://localhost/",
       headers: headers,
-      json: jest.fn().mockResolvedValue(form),
+      json: jest.fn().mockResolvedValue({
+        hasChanges: expectHasChanges,
+        form: form,
+      }),
     };
     await doRequest(request)
 
@@ -161,14 +163,15 @@ test('addEventListener_POST_with_payload_Request', async () => {
     expect(sendMessageCommandConfig.QueueUrl).toBe(AwsSqsQueueUrl)
 
     const actualMessageBody = JSON.parse(sendMessageCommandConfig.MessageBody)
+
     expect(typeof actualMessageBody).toBe('object')
+    expect(actualMessageBody.formHasChanges).toBe(expectHasChanges)
     expect(actualMessageBody.form).toStrictEqual(form)
     expect(actualMessageBody.ip).toBe(headers['Cf-Connecting-Ip'])
     expect(actualMessageBody.referer).toBe(headers['Referer'])
     expect(actualMessageBody.timestamp).toBe(currentTimestampInSeconds)
-    expect(actualMessageBody.formHasChanges).toBe(expectHasChanges)
   }
 
-  await sendAndAssertRequestResponse("1", true)
-  await sendAndAssertRequestResponse("0", false)
+  await sendAndAssertRequestResponse(true)
+  await sendAndAssertRequestResponse(false)
 })

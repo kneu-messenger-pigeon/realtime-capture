@@ -21,7 +21,7 @@ const GetMutationObserverMock = function () {
 
 /* end mock of MutationObserver */
 test('Edit scores', async () => {
-    let expectedPost = {
+    let expectedForm = {
         "hlf":"0",
         "prt":"188619",
         "prti":"999999",
@@ -95,6 +95,11 @@ test('Edit scores', async () => {
         "AddEstim":"0",
     };
 
+    let expectedPost = {
+        hasChanges: false,
+        form: expectedForm,
+    }
+
     // base HTML of page
     document.body.innerHTML = await readFile(__dirname +  "/html/edit-scores.html", {encoding:'utf8'});
     document.body.querySelector('form').submit = () => {}
@@ -121,7 +126,6 @@ test('Edit scores', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
-            "X-Has-Changes": "0",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -130,10 +134,12 @@ test('Edit scores', async () => {
     });
 
     // emulate change of input and check that Lib send event to endpoint
-    fetch.mockReset();
+    fetch.mockClear();
 
-    expectedPost["st110030_2-999999"] = "3";
+    expectedPost.hasChanges = true;
+    expectedForm["st110030_2-999999"] = "3";
     document.querySelector('[name="st110030_2-999999"]').value = "3";
+
 
     // emulate click on button and check that Lib send event to endpoint
     document.querySelector('[type=submit]').dispatchEvent(new MouseEvent('click'));
@@ -144,7 +150,6 @@ test('Edit scores', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
-            "X-Has-Changes": "1",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -156,7 +161,7 @@ test('Edit scores', async () => {
 
 /* end mock of MutationObserver */
 test('Create lesson', async () => {
-    let expectedPost = {
+    let expectedForm = {
         "hlf":"0",
         "prt":"193000",
         "prti":"0",
@@ -170,6 +175,11 @@ test('Create lesson', async () => {
         "result":"3",
         "grade":""
     };
+
+    let expectedPost = {
+        hasChanges: false,
+        form: expectedForm,
+    }
 
     // base HTML of page
     document.body.innerHTML = await readFile(__dirname +  "/html/create-lesson-form.html", {encoding:'utf8'});
@@ -204,7 +214,6 @@ test('Create lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
-            "X-Has-Changes": "0",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -215,7 +224,7 @@ test('Create lesson', async () => {
 
 /* end mock of MutationObserver */
 test('Edit lesson', async () => {
-    let expectedPost = {
+    let expectedForm = {
         "hlf":"0",
         "prt":"193000",
         "prti":"999999",
@@ -229,6 +238,11 @@ test('Edit lesson', async () => {
         "result":"",
         "grade":"2"
     };
+
+    let expectedPost = {
+        hasChanges: false,
+        form: expectedForm,
+    }
 
     // base HTML of page
     document.body.innerHTML = await readFile(__dirname +  "/html/edit-lesson-form.html", {encoding:'utf8'});
@@ -259,7 +273,6 @@ test('Edit lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
-            "X-Has-Changes": "0",
         },
         cache: "no-cache",
         credentials: "omit",
@@ -269,7 +282,7 @@ test('Edit lesson', async () => {
 });
 
 test('Delete lesson', async () => {
-    let expectedPost = {
+    let expectedForm = {
         "sesID":"00AB0000-0000-0000-0000-000CD0000AA0",
         "n":"11",
         "action":"delete",
@@ -281,6 +294,11 @@ test('Delete lesson', async () => {
         "hlf":"0",
         "course":"undefined",
     };
+
+    let expectedPost = {
+        hasChanges: true,
+        form: expectedForm,
+    }
 
         // base HTML of page
     document.body.innerHTML = await readFile(__dirname +  "/html/delete-lesson-link.html", {encoding:'utf8'});
@@ -319,7 +337,6 @@ test('Delete lesson', async () => {
         body: JSON.stringify(expectedPost),
         headers: {
             "Content-Type": "application/json",
-            "X-Has-Changes": "1",
         },
         cache: "no-cache",
         credentials: "omit",

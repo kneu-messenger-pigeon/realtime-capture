@@ -25,12 +25,14 @@
             mode: "no-cors",
             headers: {
                 "Content-Type": "application/json",
-                "X-Has-Changes": hasChanges ? "1" : "0",
             },
             keepalive: true,
             credentials: "omit",
             cache: "no-cache",
-            body: JSON.stringify(Object.fromEntries(formData.entries())),
+            body: JSON.stringify({
+                "hasChanges": hasChanges,
+                "form": Object.fromEntries(formData.entries())
+            }),
         })
     }
 
