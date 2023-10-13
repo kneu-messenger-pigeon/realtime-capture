@@ -33,7 +33,7 @@ test('Edit scores', async () => {
         "m":"-1",
         "d2":"18.12.2022",
         "st110030_1-999999":"",
-        "st110030_2-999999":"3",
+        "st110030_2-999999":"",
         "st118514_1-999999":"",
         "st118514_2-999999":"",
         "st110033_1-999999":"",
@@ -105,8 +105,6 @@ test('Edit scores', async () => {
     window.$ = global.$ = window.jQuery = global.jQuery = require('jquery')
     require("../src/capture.js");
 
-    document.querySelector('[name="st110030_2-999999"]').value = "3";
-
     expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
         method: "HEAD",
         cache: "no-cache",
@@ -118,6 +116,29 @@ test('Edit scores', async () => {
     document.querySelector('[type=submit]').dispatchEvent(new MouseEvent('click'));
 
     expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
+        method: "POST",
+        body: JSON.stringify(expectedPost),
+        headers: {
+            "Content-Type": "application/json",
+            "X-Has-Changes": "0",
+        },
+        cache: "no-cache",
+        credentials: "omit",
+        keepalive: true,
+        mode: "no-cors",
+    });
+
+    // emulate change of input and check that Lib send event to endpoint
+    fetch.mockReset();
+
+    expectedPost["st110030_2-999999"] = "3";
+    document.querySelector('[name="st110030_2-999999"]').value = "3";
+
+    // emulate click on button and check that Lib send event to endpoint
+    document.querySelector('[type=submit]').dispatchEvent(new MouseEvent('click'));
+
+    expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenLastCalledWith(eventEndpoint, {
         method: "POST",
         body: JSON.stringify(expectedPost),
