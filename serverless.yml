@@ -107,6 +107,10 @@ resources:
                     - 'sqs:ReceiveMessage'
                     - 'sqs:DeleteMessage'
                     - 'sqs:GetQueueUrl'
+                    - !If
+                      - IsIntegrationTesting
+                      - 'sqs:PurgeQueue'
+                      - !Ref AWS::NoValue
                   Resource:
                     - 'Fn::Join':
                         - ':'
