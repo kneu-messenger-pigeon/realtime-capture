@@ -16,6 +16,17 @@ provider:
   region: ${env:AWS_DEFAULT_REGION, 'eu-central-1'}
 
 resources:
+  Conditions:
+    IsProd:
+      Fn::Equals:
+        - ${opt:stage}
+        - prod
+
+    IsIntegrationTesting:
+      Fn::Equals:
+        - ${opt:stage}
+        - integration-testing
+
   Resources:
     ChangesQueue:
       Type: 'AWS::SQS::Queue'
@@ -52,6 +63,10 @@ resources:
                 - Effect: Allow
                   Action:
                     - 'sqs:SendMessage'
+                    - !If
+                      - IsIntegrationTesting
+                      - 'sqs:PurgeQueue'
+                      - !Ref AWS::NoValue
                   Resource:
                     - 'Fn::Join':
                         - ':'
@@ -92,7 +107,6 @@ resources:
                     - 'sqs:ReceiveMessage'
                     - 'sqs:DeleteMessage'
                     - 'sqs:GetQueueUrl'
-                    - 'sqs:PurgeQueue'
                   Resource:
                     - 'Fn::Join':
                         - ':'
