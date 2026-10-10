@@ -8,7 +8,7 @@ document.head.append(
         document.createElement("script"),
         {
           src: "https://dekanat.pp.ua/prod/capture.js",
-          async: true,
+          defer: true,
         }
     )
 );
@@ -17,7 +17,7 @@ document.head.append(
 
 one line: 
 ```javascript
-document.head.append(Object.assign(document.createElement("script"),{src:"https://dekanat.pp.ua/prod/capture.js",async:true}));
+document.head.append(Object.assign(document.createElement("script"),{src:"https://dekanat.pp.ua/prod/capture.js",defer:true}));
 ```
 
 ## Quality and reliability assurance
